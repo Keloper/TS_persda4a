@@ -37,12 +37,10 @@
 favorita_forecasting/
 ├── config.py                 # Централизованная конфигурация (пути, гиперпараметры, даты сплитов)
 ├── requirements.txt          # Зафиксированные версии библиотек
-├── run_experiment.py         # Единый CLI-скрипт запуска обучения и валидации всех моделей
 ├── run_stage4_ml.py          # Эксперимент: обучение и валидация LightGBM
 ├── run_stage5_dl.py          # Эксперимент: обучение и валидация PyTorch Entity Embeddings
 ├── make_naive_submission.py  # Генерация наивного сабмита (Seasonal Naive 7d)
 ├── make_dl_submission.py     # Генерация сабмита нейросети (PyTorch)
-├── make_killer_ensemble.py   # Финальный сабмит (LGBM + DL + DOW-профили + Payday)
 ├── src/
 │   ├── __init__.py
 │   ├── config.py             # Ссылка/импорт глобального конфига
