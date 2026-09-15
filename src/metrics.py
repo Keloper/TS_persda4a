@@ -27,8 +27,6 @@ def compute_nwrmsle(
 
 def compute_wape(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """Weighted Absolute Percentage Error (WAPE) = sum(|y - y_hat|) / sum(y)
-
-    Показывает суммарную ошибку в % от общего объема продаж.
     """
     y_pred = np.clip(y_pred, 0, None)
     y_true = np.clip(y_true, 0, None)
@@ -48,7 +46,7 @@ def compute_mae(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 def evaluate_all_metrics(
     y_true: np.ndarray, y_pred: np.ndarray, weights: np.ndarray
 ) -> dict:
-    """Считает все метрики разом и возвращает словарь."""
+    """Считает все метрики разом"""
     return {
         "NWRMSLE": compute_nwrmsle(y_true, y_pred, weights),
         "WAPE": compute_wape(y_true, y_pred),

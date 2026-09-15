@@ -6,9 +6,8 @@ from src.data import load_test_data
 
 
 def make_naive_submission():
-    print("=== ГЕНЕРАЦИЯ НАИВНОГО САБМИТА (SEASONAL NAIVE 7 ДНЕЙ) ===")
 
-    # 1. Загружаем только последнюю неделю трейна (с 2017-08-08 по 2017-08-15)
+    # Загружаем только последнюю неделю трейна (с 2017-08-08 по 2017-08-15)
     print("Чтение последней недели продаж перед тестом...")
     dtypes = {
         "id": "uint32",
@@ -17,7 +16,6 @@ def make_naive_submission():
         "unit_sales": "float32",
     }
 
-    # Читаем чанками, фильтруем только 8-15 августа 2017 года
     chunks = []
     for chunk in pd.read_csv(
         config.DATA_DIR / "train.csv",
@@ -34,7 +32,7 @@ def make_naive_submission():
     recent_train["dayofweek"] = recent_train[config.DATE_COL].dt.dayofweek
 
     # Считаем продажи по парам (магазин, товар, день недели)
-    print("Построение карты продаж по дням недели...")
+    print("Построение карты продаж по дням недели")
     lookup = (
         recent_train.groupby(["store_nbr", "item_nbr", "dayofweek"])[
             config.TARGET_COL
@@ -43,12 +41,12 @@ def make_naive_submission():
         .reset_index()
     )
 
-    # 2. Загружаем test.csv
+    #  Загружаем test.csv
     test_df = load_test_data()
     test_df["dayofweek"] = test_df[config.DATE_COL].dt.dayofweek
 
-    # 3. Подтягиваем продажи соответствующего дня недели
-    print("Формирование прогнозов...")
+    # Подтягиваем продажи соответствующего дня недели
+    print("Формирование прогнозов")
     merged = test_df.merge(
         lookup, on=["store_nbr", "item_nbr", "dayofweek"], how="left"
     )
@@ -56,7 +54,7 @@ def make_naive_submission():
     # Если товара в этот день не было в магазине — прогнозируем 0
     merged[config.TARGET_COL] = merged[config.TARGET_COL].fillna(0)
 
-    # 4. Формируем сабмит
+    # Формируем сабмит
     sub = merged[[config.ID_COL, config.TARGET_COL]].copy()
 
     # Сохраняем файл
@@ -64,7 +62,7 @@ def make_naive_submission():
     sub.to_csv(sub_path, index=False)
 
     print(f"\n Файл успешно сохранен: {sub_path}")
-    print(f"Всего строк: {len(sub):,} (ровно столько требует Kaggle)")
+    print(f"Всего строк: {len(sub):,}")
     print("\nПервые 10 строк вашего сабмита:")
     print(sub.head(10))
 

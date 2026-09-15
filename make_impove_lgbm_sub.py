@@ -148,7 +148,7 @@ def run_improved_lgbm():
             return feat, y
         return feat
 
-    # 4. Формирование обучающей выборки на 3 срезах дат
+    #  Формирование обучающей выборки на 3 срезах дат
     print(" Извлечение признаков на 3 исторических срезах...")
     cutoffs = ["2017-06-21", "2017-07-05", "2017-07-25"]
     X_trains, y_trains = [], []
@@ -162,8 +162,6 @@ def run_improved_lgbm():
     X_train = pd.concat(X_trains, axis=0)
     y_train = np.concatenate(y_trains)
 
-    # Признаки для тестового сабмита на Kaggle 
-    print("   Извлечение признаков для теста (срез: 2017-08-15)...")
     X_test = create_features_for_cutoff("2017-08-15", is_train=False)
 
     # Веса для скоропортящихся товаров
@@ -184,7 +182,7 @@ def run_improved_lgbm():
     )
     model.fit(X_train, y_train, sample_weight=weights)
 
-    # Инференс и пост-процессинг
+    # Инференс
     pred_log = model.predict(X_test)
     pred_sales = np.expm1(np.clip(pred_log, 0, None))
 

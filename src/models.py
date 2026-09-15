@@ -1,7 +1,6 @@
 # src/models.py
 import sys
 
-# Блокируем сломанный dask из Anaconda, чтобы LightGBM работал напрямую
 sys.modules["dask"] = None
 sys.modules["dask.dataframe"] = None
 import lightgbm as lgb
@@ -67,7 +66,7 @@ class SeasonalNaiveBaseline:
 
 
 class MLForecaster:
-    """Градиентный бустинг LightGBM на log1p(sales)."""
+    """Градиентный бустинг LightGBM """
 
     def __init__(self, n_estimators: int = 250, learning_rate: float = 0.08):
         self.model = lgb.LGBMRegressor(

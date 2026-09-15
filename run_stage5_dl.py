@@ -15,12 +15,7 @@ from src.data import load_exogenous_data, load_train_data, get_train_val_split
 from src.features import prepare_dataset
 from src.metrics import evaluate_all_metrics
 
-print("==================================================")
-print("     ЭТАП 5: ОБУЧЕНИЕ И ВАЛИДАЦИЯ DEEP LEARNING   ")
-print("==================================================")
 
-
-# 1. Dataset для PyTorch
 class TabularTSDataset(Dataset):
 
     def __init__(self, cats, conts, targets=None, weights=None):
@@ -51,7 +46,6 @@ class TabularTSDataset(Dataset):
         return self.cats[idx], self.conts[idx]
 
 
-# 2. Архитектура нейросети с Entity Embeddings
 class TimeSeriesEmbeddingNet(nn.Module):
 
     def __init__(
@@ -93,7 +87,6 @@ class TimeSeriesEmbeddingNet(nn.Module):
         return self.mlp(x).squeeze(-1)
 
 
-# 3. Основной пайплайн
 def run_dl():
     exo = load_exogenous_data()
     train = load_train_data(start_date="2017-06-01")
@@ -117,10 +110,10 @@ def run_dl():
         f"\nКатегориальные фичи ({len(cat_cols)}): {cat_cols}"
     )
     print(
-        f"Числовые/экзогенные фичи ({len(cont_cols)}): {cont_cols}"
+        f"Числовые фичи ({len(cont_cols)}): {cont_cols}"
     )
 
-    # Нормализация категорий в диапазон 0..K-1
+    # Нормализация категорий 
     cat_maps = {
         col: {val: i for i, val in enumerate(train_df[col].unique())}
         for col in cat_cols
@@ -132,7 +125,7 @@ def run_dl():
         [val_df[c].map(cat_maps[c]).fillna(0).values for c in cat_cols]
     )
 
-    # Нормализация числовых признаков (Mean-Std scaling)
+    # Нормализация числовых признаков
     means = train_df[cont_cols].mean()
     stds = train_df[cont_cols].std().replace(0, 1)
 
@@ -145,7 +138,6 @@ def run_dl():
     y_train_log = np.log1p(train_df[config.TARGET_COL].values)
     y_val_real = val_df[config.TARGET_COL].values
 
-    # PyTorch DataLoaders
     batch_size = 4096
     train_ds = TabularTSDataset(
         cats_train, conts_train, y_train_log, train_weights
@@ -157,7 +149,6 @@ def run_dl():
     )
     val_loader = DataLoader(val_ds, batch_size=batch_size * 2, shuffle=False)
 
-    # Определение устройства (Apple MPS / CUDA / CPU)
     device = torch.device(
         "mps"
         if torch.backends.mps.is_available()
@@ -175,10 +166,10 @@ def run_dl():
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-3, weight_decay=1e-4)
     criterion = nn.MSELoss(reduction="none")
 
-    # 4. Цикл обучения (3 эпохи для быстрого схождения)
+    # Цикл обучения (3 эпохи )
     epochs = 3
     model.train()
-    print("\nСтарт эпох обучения...")
+    print("\nСтарт обучения")
     for epoch in range(epochs):
         total_loss = 0.0
         for b_cats, b_conts, b_y, b_w in train_loader:
@@ -196,8 +187,8 @@ def run_dl():
             f"Эпоха {epoch+1}/{epochs} - Средний Loss (Weighted MSE): {total_loss / len(train_loader):.4f}"
         )
 
-    # 5. Валидационный инференс
-    print("\nИнференс DL модели на валидации...")
+    # инференс
+    print("\nИнференс DL модели на валидации")
     model.eval()
     preds_list = []
     with torch.no_grad():
@@ -212,15 +203,12 @@ def run_dl():
     # Расчет метрик
     metrics_dl = evaluate_all_metrics(y_val_real, val_preds, val_weights)
 
-    print("\n==================================================")
-    print("          РЕЗУЛЬТАТЫ ЭТАПА 5: DEEP LEARNING       ")
-    print("==================================================")
+ 
     print(f"NWRMSLE: {metrics_dl['NWRMSLE']:.4f}")
     print(f"WAPE:    {metrics_dl['WAPE']:.4f}")
     print(f"MAE:     {metrics_dl['MAE']:.4f}")
-    print("==================================================")
 
-    # Сохраняем метрику для итогового отчета
+
     res_df = pd.DataFrame(
         [
             {

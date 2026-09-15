@@ -55,7 +55,7 @@ def generate_lag_features(df: pd.DataFrame) -> pd.DataFrame:
     # Убираем возможные дубликаты пар дата-магазин-товар
     df = df.drop_duplicates(subset=[config.DATE_COL, "store_nbr", "item_nbr"])
 
-    # Сводная таблица (дата x ряд) для быстрого расчета лагов
+    # Сводная таблица (дата x ряд) 
     pivot = df.pivot(
         index=config.DATE_COL,
         columns=["store_nbr", "item_nbr"],

@@ -8,13 +8,12 @@ import config
 
 
 def get_dtypes() -> dict:
-    """Оптимальные типы данных для экономии RAM."""
     return {
         "id": "uint32",
         "store_nbr": "uint8",
         "item_nbr": "uint32",
         "unit_sales": "float32",
-        "onpromotion": "object",  # <-- Устраняет DtypeWarning
+        "onpromotion": "object",  
     }
 
 
@@ -22,7 +21,7 @@ def load_train_data(
     start_date: str = config.TRAIN_START_DATE,
     chunksize: int = 1_000_000,
 ) -> pd.DataFrame:
-    """Загружает train.csv чанками с фильтрацией по дате."""
+    
     print(f"Загрузка train.csv (фильтрация: дата >= {start_date})...")
     train_path = config.DATA_DIR / "train.csv"
 
@@ -35,10 +34,9 @@ def load_train_data(
         parse_dates=[config.DATE_COL],
         chunksize=chunksize,
     ):
-        # Оставляем только свежие данные
+
         filtered_chunk = chunk[chunk[config.DATE_COL] >= start_date].copy()
         if not filtered_chunk.empty:
-            # Надежно приводим onpromotion (True/False/NaN) к int8 (0/1)
             filtered_chunk["onpromotion"] = (
                 filtered_chunk["onpromotion"]
                 .map({True: 1, "True": 1, 1: 1, False: 0, "False": 0, 0: 0})
@@ -46,7 +44,6 @@ def load_train_data(
                 .astype("int8")
             )
 
-            # В соревновании возвраты (отрицательные продажи) клипаются до 0
             filtered_chunk[config.TARGET_COL] = (
                 filtered_chunk[config.TARGET_COL].clip(lower=0).astype("float32")
             )
@@ -63,7 +60,7 @@ def load_train_data(
 
 
 def load_test_data() -> pd.DataFrame:
-    """Загрузка тестовой выборки для финального сабмита."""
+
     print("Загрузка test.csv...")
     dtypes = {
         "id": "uint32",
@@ -86,10 +83,9 @@ def load_test_data() -> pd.DataFrame:
 
 
 def load_exogenous_data() -> Dict[str, pd.DataFrame]:
-    """Загружает и подготавливает все внешние таблицы."""
+
     print("Загрузка экзогенных файлов...")
 
-    # 1. Items (товары и веса для NWRMSLE)
     items = pd.read_csv(
         config.DATA_DIR / "items.csv",
         dtype={
@@ -117,7 +113,7 @@ def load_exogenous_data() -> Dict[str, pd.DataFrame]:
         },
     )
 
-    # 3. Oil (цена на нефть — интерполируем выходные и праздники)
+    # 3. Oil 
     oil = pd.read_csv(config.DATA_DIR / "oil.csv", parse_dates=["date"])
     full_date_range = pd.date_range(
         start=oil["date"].min(), end="2017-08-31", freq="D"
@@ -132,7 +128,7 @@ def load_exogenous_data() -> Dict[str, pd.DataFrame]:
         oil["dcoilwtico"].interpolate(method="linear").bfill().ffill()
     )
 
-    # 4. Holidays (праздники — исключаем перенесенные)
+    # 4. Holidays 
     holidays = pd.read_csv(
         config.DATA_DIR / "holidays_events.csv", parse_dates=["date"]
     )
@@ -143,7 +139,7 @@ def load_exogenous_data() -> Dict[str, pd.DataFrame]:
         .copy()
     )
 
-    # 5. Transactions (транзакции)
+    # 5. Transactions 
     transactions = pd.read_csv(
         config.DATA_DIR / "transactions.csv",
         parse_dates=["date"],
@@ -162,7 +158,7 @@ def load_exogenous_data() -> Dict[str, pd.DataFrame]:
 def get_train_val_split(
     df: pd.DataFrame, items_df: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame, np.ndarray]:
-    """Разделяет данные на train и validation строго по временной шкале."""
+    """Разделяет данные на train и validation"""
     val_mask = (df[config.DATE_COL] >= config.VAL_START_DATE) & (
         df[config.DATE_COL] <= config.VAL_END_DATE
     )
