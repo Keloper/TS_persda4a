@@ -28,7 +28,8 @@
 
 ```text
 favorita_forecasting/
-├── config.py                 # Централизованная конфигурация (пути, гиперпараметры, даты сплитов)
+├── report.ipynb              # отчет в формате Markdown
+├── config.py                 # пути, гиперпараметры, даты сплитов
 ├── requirements.txt          # Зафиксированные версии библиотек
 ├── run_stage4_ml.py          # Эксперимент: обучение и валидация LightGBM
 ├── run_stage5_dl.py          # Эксперимент: обучение и валидация PyTorch Entity Embeddings
@@ -38,9 +39,9 @@ favorita_forecasting/
 ├── src/
 │   ├── __init__.py
 │   ├── config.py             # Ссылка/импорт глобального конфига
-│   ├── data.py               # Потоковая загрузка данных (chunks), оптимизация памяти, time-based split
-│   ├── features.py           # Генерация лагов (>=16d), скользящих окон, слияние экзогенных таблиц
-│   ├── metrics.py            # Векторизованный расчет NWRMSLE, WAPE, MAE с восстановлением масштаба
+│   ├── data.py               # Функции для загрузки/обработки данных 
+│   ├── features.py           # Генерация лагов (>=16d), скользящих окон, мердж таблиц 
+│   ├── metrics.py            # Формулы метрик для расчета 
 │   └── models.py             # Классы бейзлайнов (Naive, SNaive), LightGBM и PyTorch EmbeddingNet
 └── results/
     ├── comparison_metrics.csv # Сводная таблица результатов валидации
