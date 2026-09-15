@@ -34,6 +34,7 @@ favorita_forecasting/
 ├── run_stage5_dl.py          # Эксперимент: обучение и валидация PyTorch Entity Embeddings
 ├── make_naive_submission.py  # Генерация наивного сабмита (Seasonal Naive 7d)
 ├── make_dl_submission.py     # Генерация сабмита нейросети (PyTorch)
+├── make_improve_lgbm_sub.py. # Генерация сабмита бустинга
 ├── src/
 │   ├── __init__.py
 │   ├── config.py             # Ссылка/импорт глобального конфига
